@@ -1,11 +1,12 @@
 package com.yk.springboot.springrestcrud.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yk.springboot.springrestcrud.dao.EmployeeDao;
+import com.yk.springboot.springrestcrud.dao.EmployeeRepository;
 import com.yk.springboot.springrestcrud.entity.Employee;
 
 import jakarta.transaction.Transactional;
@@ -13,39 +14,43 @@ import jakarta.transaction.Transactional;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private EmployeeDao employeeDao;
+    private EmployeeRepository employeeRepository;
 
     @Autowired
-    EmployeeServiceImpl(EmployeeDao theEmployeeDao) {
-        employeeDao = theEmployeeDao;
+    EmployeeServiceImpl(EmployeeRepository theEmployeeRepository) {
+        employeeRepository = theEmployeeRepository;
     }
 
     @Override
     public List<Employee> getAll() {
-        return employeeDao.findAll();
+        return employeeRepository.findAll();
     }
 
     @Override
     public Employee getById(int id) {
-        return employeeDao.getById(id);
+        Optional<Employee> result = employeeRepository.findById(id);
+        Employee theEmployee = null;
+        if (result.isPresent()) {
+            theEmployee = result.get();
+        } else {
+            throw new RuntimeException("Did not found id of " + id);
+        }
+        return theEmployee;
     }
 
     @Override
-    @Transactional
     public Employee save(Employee emp) {
-        return employeeDao.save(emp);
+        return employeeRepository.save(emp);
     }
 
     @Override
-    @Transactional
     public Employee update(Employee emp) {
-        return employeeDao.save(emp);
+        return employeeRepository.save(emp);
     }
 
     @Override
-    @Transactional
-    public String delete(int id) {
-        return employeeDao.delete(id);
+    public void delete(int id) {
+        employeeRepository.deleteById(id);
     }
 
 }
